@@ -1,0 +1,623 @@
+MONGODB-Collection
+var MongoClient = require('mongodb').MongoClient;
+var url = "mongodb://localhost:27017/";
+
+MongoClient.connect(url, function(err, db) {
+  if (err) throw err;
+  var dbo = db.db("mydb");
+  dbo.createCollection("customers1", function(err, res) {
+    if (err) throw err;
+    console.log("Collection created!");
+    db.close();
+  });
+});
+----------------
+Delete
+var MongoClient = require('mongodb').MongoClient;
+var url = "mongodb://localhost:27017/";
+
+MongoClient.connect(url, function(err, db) {
+  if (err) throw err;
+  var dbo = db.db("mydb");
+  /*Delete the first customers with the address "Mountain 21":*/
+  var myquery = { address: 'Mountain 21' };
+  dbo.collection("customers").deleteOne(myquery, function(err, obj) {
+    if (err) throw err;
+    console.log("1 document deleted");
+    db.close();
+  });
+});
+------------------------
+Find
+var MongoClient = require('mongodb').MongoClient;
+var url = "mongodb://localhost:27017/";
+
+MongoClient.connect(url, function(err, db) {
+  if (err) throw err;
+  var dbo = db.db("mydb");
+  dbo.collection("customers").findOne({}, function(err, result) {
+    if (err) throw err;
+    console.log(result.name);
+    db.close();
+  });
+});
+---------------------------
+Insert
+var MongoClient = require('mongodb').MongoClient;
+var url = "mongodb://localhost:27017/";
+MongoClient.connect(url, function(err, db) {
+  if (err) throw err;
+  var dbo = db.db("mydb");
+  var myobj = { name: "Company Inc", address: "Highway 37" };
+  dbo.collection("customers").insertOne(myobj, function(err, res) {
+    if (err) throw err;
+    console.log("1 document inserted");
+    db.close();
+  });
+});
+-------------------------------
+Update
+var MongoClient = require('mongodb').MongoClient;
+var url = "mongodb://localhost:27017/";
+
+MongoClient.connect(url, function(err, db) {
+  if (err) throw err;
+  var dbo = db.db("mydb");
+  var myquery = { address: "Valley 345" };
+  var newvalues = { $set: { name: "Michael", address: "Canyon 123" } };
+  dbo.collection("customers").updateOne(myquery, newvalues, function(err, res) {
+    if (err) throw err;
+    console.log("1 document updated");
+    db.close();
+  });
+});
+-------------------------------
+Console code
+{ MongoDB Compass -> Connect ->_mongosh -> code there }
+//Create Collection
+db.createCollection("Learning")
+//Insert document in Collection
+db.Learning.insertMany(
+[
+{
+bookid:1,
+author:"Smith",
+bookname:"HTML",
+Price:450,
+Status:'A'
+},
+{
+bookid:2,
+author:"Mike",
+bookname:"XML",
+Price:300,
+Status:'D'
+},
+{
+bookid:3,
+author:"Smith",
+bookname:"Ajax",
+Price:300,
+Status:'A'
+},
+{
+bookid:4,
+author:"Ken",
+bookname:"Mobile",
+Price:567,
+Status:'A'
+}
+]
+)
+
+
+//Query to display author wise book price
+db.Learning.aggregate([
+{$match:{Status:"A"}},
+{$group:{_id:"$author",total:"{$sum:"$Price"}}}
+])
+//Create Index
+db.Learning.createIndex(
+{
+bookname:1,
+Price:-1
+}
+)
+//To View Index 
+db.Learning.getIndexes()
+db.dropIndex(
+{
+bookname:1
+}
+)
+___________________________________________________________________________________________________________________________________
+Angular
+Table
+<!DOCTYPE html>
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<head>
+<style>
+table{
+width:900px;
+border:0px;
+}
+tr{
+background-color:aqua;
+}
+th{
+background-color:pink;
+}
+td{
+padding:10px;
+}
+</style>
+</head>
+<body ng-app="myapp">
+<div ng-controller="myctrl">
+<select ng-model="selection">
+<option ng-bind="str='Select Operation'"></option>
+<option value="+name">ASC Name</option>
+<option value="-name">DSC Name</option>
+<option value="+DOB">ASC DOB</option>
+<option value="-salary">DSC Salary</option>
+</select>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>DOB</th>
+<th>Gender</th>
+<th>Salary</th>
+</thead>
+</tr>
+<tbody>
+<tr ng-repeat="x in employee|orderBy:selection">
+<td>{{x.name}}</td>
+<td>{{x.DOB|date:"dd/MM/yyyy"}}</td>
+<td>{{x.gender}}</td>
+<td>{{x.salary}}</td>
+</tr>
+</tbody>
+</table>
+<script>
+app=angular.module("myapp",[]);
+app.controller("myctrl",function($scope){
+var employee=[{name:"Mike",DOB:new Date("23 nov 2022"),gender:"Male",salary:34444},
+              {name:"Paul",DOB:new Date("12 may 1998"),gender:"Female",salary:3456},
+			  {name:"Smith",DOB:new Date("13 June 1997"),gender:"Male",salary:2344}
+			 ];
+$scope.employee=employee;
+});			 
+</script>
+</div>
+</body>
+</html>
+--------------------------------------
+Email Validation 
+<!DOCTYPE html>
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<style>
+input.ng-invalid{background-color:yellow;}
+input.ng-valid{background-color:lawngreen;}
+form.ng-pristine{background-color:aqua;}
+form.ng-dirty{background-color:mediumaquamarine;}
+</style>
+<body ng-app="">
+<form name="myform">
+<h2>My Form</h2>
+FirstName<input name="myname" type="text" ng-model="myname" placeholder="Enter the Name" required ng-minlength="3" ng-maxlength="15"/>
+<span style="color:red">
+<span ng-show="myform.myname.$error.required">Plz enter name</span>
+<span ng-show="myform.myname.$error.minlength">First name is too small</span>
+<span ng-show="myform.myname.$error.maxlength">First name is too big</span>
+<span><br><br>
+Email<input name="email" type="email" ng-model="email" placeholder="Enter the Name" required />
+<span style="color:red">
+<span ng-show="myform.email.$error.required">Plz enter email</span>
+<span ng-show="myform.email.$error.email">Email is incorrect</span>
+<span>
+<br><br>
+<button ng-disabled="myform.myname.$invalid">Submit</button>
+</form>
+</body>
+</html>
+--------------------------------------
+ANgular VAlidation 
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js">
+</script> 
+<style>
+input.ng-invalid{background-color:yellow;}
+input.ng-valid{background-color:lawngreen;}
+form.ng-pristine{background-color:aqua;}
+form.ng-dirty{background-color:mediumaquamarine;}
+</style>
+
+<body ng-app="">
+<form name="myform">
+<h2>My Form</h2>
+<input type="text" ng-model="myname" placeholder="Enter your name" required>
+</form>
+</body>
+</html> 
+-----------------------------------
+Data binding
+<!DOCTYPE html>
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<body>
+<div ng-app="myapp" ng-controller="myctrl">
+<input type="text" ng-model="fname">
+<input type="text" ng-model="mycolor" 
+ng-init="mycolor='pink'" style="background-color:{{mycolor}};">
+<p>Your Name{{fname}}</p>
+<p ng-bind="fname"></p>
+
+<ul>
+<li ng-repeat="x in Skills">{{x}}<li/>
+</ul>
+<ul>
+<li ng-repeat="x in customer">{{x.country}}</li>
+</ul>
+</div>
+<script>
+var app=angular.module("myapp",[]);
+app.controller("myctrl",function($scope)
+{
+$scope.fname="Smith";
+$scope.Skills=["HTML","XML","ASP"];
+$scope.customer=[{name:"Smith",country:"USA",age:23},
+                 {name:"Mike",country:"UK",age:34},
+                 {name:"Ram",country:"India",age:34}
+                 ] 				 
+});
+</script>
+</body>
+</html>
+-------------------------------
+Dependancy Injection
+<!DOCTYPE html>
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<body ng-app="myApp">
+
+<div  ng-controller="myCtrl">
+<h1>{{value}}</h1>
+</div>
+
+<div ng-controller="C">
+<h1>{{value}}</h1>
+</div>
+<div ng-controller="C1">
+<h1>{{value}}</h1>
+</div>
+<div ng-controller="C2">
+<h1>{{value}}</h1>
+</div>
+<script>
+var app = angular.module('myApp', []);
+app.value("numbervalue",9999);
+app.value("Stringvalue","ABVG");
+app.value("ObjectValue",{a:1,b:"dd"});
+app.controller('myCtrl', function($scope,Stringvalue) {
+$scope.value=Stringvalue;
+});
+app.controller('C', function($scope,ObjectValue) {
+$scope.value=ObjectValue;  
+});
+app.controller('C1', function($scope,myfactory) {
+$scope.value=myfactory;  
+});
+app.factory("myfactory",function(numbervalue){
+return "value"+numbervalue;
+});
+app.service("myservice",function(){
+this.doit=function()
+{
+return "Hello";
+}
+});
+app.controller('C2', function($scope,myservice) {
+$scope.value=myservice.doit();  
+});
+</script>
+</body>
+</html>
+----------------------------------
+Menu
+<!DOCTYPE html>
+<html>
+<style>
+a{
+color:red;
+background-color:yellow;
+padding:20px;
+text-decoration:none;
+text-transform:uppercase;
+border:1px solid red;
+border-radius:10px;
+}
+a:hover{
+background-color:pink;
+}
+nav{
+margin-top:30px;
+}
+p{
+margin-top:60px;
+color:blue;
+text-transform:uppercase;
+}
+b{
+background-color:pink;
+paddinf:10px;
+}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<body ng-app="myapp" ng-controller="myctrl">
+<nav>
+<a href="#" ng-click="active='home'">home</a>
+<a href="#" ng-click="active='project'">project</a>
+<a href="#" ng-click="active='download'">download</a>
+<a href="#" ng-click="active='Help'">help</a>
+</nav>
+<p ng-hide="active">Plz click here</p>
+<p ng-show="active"><b> You choose </b>{{active}}</p>
+<ul>
+<li ng-repeat="x in fnamecountry">
+{{x.name+":"+x.country}}
+</li>
+</ul>
+<script>
+var app=angular.module("myapp",[]);
+app.controller("myctrl",function($scope){
+var fnamecountry=[{name:"Ram",country:"india"},{name:"Mike",country:"USA"},
+{name:"Tom",country:"France"},{name:"Smith",country:"UK"}];
+$scope.fnamecountry=fnamecountry;
+});
+</script>
+</body>
+</html>
+-------------------------
+Navigation Menu
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+nav{margin-top:20px;
+}
+a{
+ color:red;
+ background-color:yellow;
+ padding:20px;
+ text-transform:uppercase;
+ border-radius:8px;
+ text-decoration:none;
+ }
+b{background-color:pink;
+padding:10px;
+display:inline-block;
+text-transform:uppercase;
+width:80px;
+text-align:center;
+}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+
+</head>
+
+<body>
+
+<div id="main" ng-app>
+    
+<nav ng-click="$event.preventDefault()">
+
+<a href="#"  ng-click="active='home'">Home</a>
+<a href="#"  ng-click="active='projects'">Projects</a>
+<a href="#"  ng-click="active='services'">Services</a>
+<a href="#" ng-click="active='contact'">Contact</a>
+ </nav>
+    <p ng-hide="active">Please click a menu item</p>
+    <p ng-show="active">You chose <b>{{active}}</b></p>
+   
+</div>
+
+
+</body>
+</html>
+---------------------------
+Required Feild Validation
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js">
+</script> 
+<style>
+input.ng-invalid{background-color:yellow;}
+input.ng-valid{background-color:lawngreen;}
+form.ng-pristine{background-color:aqua;}
+form.ng-dirty{background-color:mediumaquamarine;}
+</style>
+
+<body ng-app="">
+<form name="myform">
+<h2>My Form</h2>
+<input type="text" name="myname"  ng-model="myname" placeholder="Enter your name" ng-minlength="3" ng-maxlength="15" required>
+<span style="color:red">
+<span ng-show="myform.myname.$error.required">plz enter name</span>
+<span ng-show="myform.myname.$error.minlength">too small</span>
+<span ng-show="myform.myname.$error.maxlength">too long</span>
+</span>
+<br><br><br>
+
+<button ng-disabled="myform.myname.$invalid">Submit</button>
+</form>
+</body>
+</html>
+----------------------------
+Root SCope
+<!DOCTYPE html>
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<body ng-app="myApp">
+
+<p>The rootScope's favorite color:</p>
+<h1>{{color}}</h1>
+
+<div ng-controller="myCtrl">
+
+<p>The scope of the controller's favorite color:</p>
+<h1>{{color}}</h1>
+
+</div>
+
+<p>The rootScope's favorite color is still:</p>
+<h1>{{color}}</h1>
+
+<script>
+var app = angular.module('myApp', []);
+app.run(function($rootScope) {
+    $rootScope.color = 'blue';
+});
+app.controller('myCtrl', function($scope) {
+    $scope.color = "red";
+});
+</script>
+
+<p>Notice that controller's color variable does not overwrite the rootScope's color value.</p>
+
+</body>
+</html>
+--------------------------
+Shopping Cart
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<body>
+<div ng-app="ShoppingCart" ng-controller="myctrl" style="border:dotted 1px solid red;background-color:aqua;width:300px;height:250px;">
+<br>
+<ul>
+<li ng-repeat="x in products">{{x}}<span style="color:red" ng-click="remove($index)">&nbsp;&nbsp;X</span></li>
+</ul>
+<input type="text" id="t1" ng-model="addMe"/>
+<input type="button" ng-click="Add()" value="AddToCart"/>
+</div>
+<script>
+app=angular.module("ShoppingCart",[]);
+app.controller("myctrl",function($scope){
+$scope.products=["book","Pen","Pen Drive","tea","Milk"];
+$scope.Add=function(){
+$scope.products.push($scope.addMe);
+document.getElementById("t1").value="";
+}
+$scope.remove=function(x)
+{
+$scope.products.splice(x,1);
+}
+});
+</script>
+</body>
+</html>
+___________________________________________________________________________________________
+NodeJS with DataBase
+[XAMPP -> Apache - Start , MySql - Start -> Admin->New->Create DB->Create Table
+Create Database -> PreviewSQL -> Save]
+var mysql = require('mysql'); 
+var con = mysql.createConnection({ 
+  host: "localhost", 
+  user: "yourusername", 
+  password: "yourpassword" 
+}); 
+con.connect(function(err) { 
+  if (err) throw err; 
+  console.log("Connected!"); 
+  con.query("CREATE DATABASE mydb", function (err, result) { 
+    if (err) throw err; 
+    console.log("Database created"); 
+  }); 
+}); 
+-------------------------------
+Create Table 
+var mysql = require('mysql'); 
+var con = mysql.createConnection({ 
+  host: "localhost", 
+  user: "yourusername", 
+  password: "yourpassword", 
+  database: "mydb" 
+}); 
+con.connect(function(err) { 
+  if (err) throw err; 
+  console.log("Connected!"); 
+  var sql = "CREATE TABLE customers (name VARCHAR(255), address VARCHAR(255))"; 
+  con.query(sql, function (err, result) { 
+    if (err) throw err; 
+    console.log("Table created"); 
+  }); 
+}); 
+---------------------------------
+Table Insertion 
+var mysql = require('mysql'); 
+var con = mysql.createConnection({ 
+  host: "localhost", 
+  user: "yourusername", 
+  password: "yourpassword", 
+  database: "mydb" 
+}); 
+con.connect(function(err) { 
+  if (err) throw err; 
+  console.log("Connected!"); 
+  var sql = "INSERT INTO customers (name, address) VALUES ('Company Inc', 'Highway 37')"; 
+  con.query(sql, function (err, result) { 
+    if (err) throw err; 
+    console.log("1 record inserted"); 
+  }); 
+}); 
+---------------------------------------
+Select from the table 
+var mysql = require('mysql'); 
+var con = mysql.createConnection({ 
+  host: "localhost", 
+  user: "yourusername", 
+  password: "yourpassword", 
+  database: "mydb" 
+}); 
+con.connect(function(err) { 
+  if (err) throw err; 
+  con.query("SELECT * FROM customers", function (err, result, fields) { 
+    if (err) throw err; 
+    console.log(result); 
+  }); 
+}); 
+---------------------------------
+Update the table 
+var mysql = require('mysql'); 
+var con = mysql.createConnection({ 
+  host: "localhost", 
+  user: "yourusername", 
+  password: "yourpassword", 
+  database: "mydb" 
+}); 
+con.connect(function(err) { 
+  if (err) throw err; 
+  var sql = "UPDATE customers SET address = 'Canyon 123' WHERE address = 'Valley 345'"; 
+  con.query(sql, function (err, result) { 
+    if (err) throw err; 
+    console.log(result.affectedRows + " record(s) updated"); 
+  }); 
+});  
+------------------------------------
+Delete from the table 
+var mysql = require('mysql'); 
+var con = mysql.createConnection({ 
+  host: "localhost", 
+  user: "yourusername", 
+  password: "yourpassword", 
+  database: "mydb" 
+}); 
+con.connect(function(err) { 
+  if (err) throw err; 
+  var sql = "DELETE FROM customers WHERE address = 'Mountain 21'"; 
+  con.query(sql, function (err, result) { 
+    if (err) throw err; 
+    console.log("Number of records deleted: " + result.affectedRows); 
+  }); 
+}); 
+-------------------------------------
